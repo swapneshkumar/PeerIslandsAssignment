@@ -1,0 +1,39 @@
+@OrderProcessing.Api_HostAddress = http://localhost:5174
+@Jwt = paste-token-here
+
+GET {{OrderProcessing.Api_HostAddress}}/health
+Accept: application/json
+
+###
+
+GET {{OrderProcessing.Api_HostAddress}}/orders?pageNumber=1&pageSize=20
+Accept: application/json
+Authorization: Bearer {{Jwt}}
+
+###
+
+POST {{OrderProcessing.Api_HostAddress}}/orders
+Content-Type: application/json
+Authorization: Bearer {{Jwt}}
+
+{
+  "customerId": "00000000-0000-0000-0000-000000000001",
+  "shippingAddress": {
+    "line1": "100 Market Street",
+    "line2": null,
+    "city": "San Francisco",
+    "state": "CA",
+    "postalCode": "94105",
+    "country": "US"
+  },
+  "items": [
+    {
+      "productId": "00000000-0000-0000-0000-000000000010",
+      "productSku": "SKU-LAPTOP-001",
+      "productName": "Enterprise Laptop",
+      "quantity": 1,
+      "unitPrice": 1299.99,
+      "currency": "USD"
+    }
+  ]
+}
