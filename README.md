@@ -755,6 +755,25 @@ Before using protected endpoints, open **API Settings** in the top bar and paste
 
 The backend JSON configuration includes string enum serialization so the UI can send and receive statuses such as `Pending`, `Processing`, `Shipped`, `Delivered`, and `Cancelled`.
 
+### UI Screenshots
+
+Dashboard and order lifecycle console:
+
+![Order Operations Console Dashboard](docs/images/order-console-dashboard.png)
+
+Create-order workflow:
+
+![Create Order Dialog](docs/images/order-console-create-order.png)
+
+The UI is intentionally designed as an enterprise operations console rather than a marketing page. It uses:
+
+- A dark command rail for primary navigation.
+- Semantic status colors for order state visibility.
+- Icon-led action buttons and status indicators.
+- Dense but readable table layout for repeated operational use.
+- API, PostgreSQL, Redis, and JWT environment indicators.
+- A typed React API client against the same backend endpoints used by tests.
+
 ## Example Create Order Request
 
 ```http
@@ -898,6 +917,44 @@ Recommended next test additions:
 - Repository tests for pagination/filter/sort behavior.
 - Hangfire job tests for stale pending order processing.
 - Concurrency conflict tests for simultaneous status updates.
+
+## AI Usage Disclosure
+
+Cursor AI and ChatGPT were used extensively, as encouraged in the assignment instructions, to accelerate design, implementation, debugging, documentation, and UI refinement.
+
+AI-assisted areas:
+
+- Clean Architecture and DDD solution planning.
+- Domain model generation for `Order`, `OrderItem`, `OrderStatusHistory`, `Money`, `Address`, and `OrderNumber`.
+- Application-layer command/query, validator, service, repository abstraction, and result-pattern scaffolding.
+- EF Core/PostgreSQL persistence mapping, repository implementation, and Docker Compose setup.
+- ASP.NET Core API controllers, middleware, JWT authorization, Swagger, health checks, and Hangfire registration.
+- React + Material UI operations console for manually testing the API.
+- README documentation, architecture notes, SOLID explanation, design-pattern explanation, and screenshot workflow.
+
+Issues found during validation:
+
+- `OrderProcessing.Contracts` initially referenced domain/shared types without project references.
+- Serilog registration used the wrong overload for the available service-registration context.
+- EF startup failed in Docker because Hangfire created database tables before the application schema.
+- PostgreSQL `RowVersion` handling caused insert/update issues in the demo schema.
+- Aggregate-wide EF `Update` calls incorrectly marked status-history rows as modified instead of added.
+- The React UI initially did not auto-load orders and required a manually pasted JWT.
+- The first UI styling pass was functional but not premium enough for an enterprise assignment review.
+
+Corrections made:
+
+- Added the missing project references.
+- Fixed Serilog configuration registration.
+- Adjusted demo database schema creation for Docker startup.
+- Added PostgreSQL-safe row-version default handling and disabled the incorrect concurrency convention for the demo path.
+- Added explicit status-change tracking so status updates persist as order update plus history insert.
+- Added a dev-only Admin JWT and automatic order loading for local Docker testing.
+- Upgraded the UI with a command rail, stronger iconography, semantic color coding, system-health indicators, refined metric cards, and README screenshots.
+
+Current AI-related caveat:
+
+- AI helped produce the implementation, but the final behavior was validated through Docker build/run, API health checks, order creation, order retrieval, and status-transition requests.
 
 ## Security Considerations
 

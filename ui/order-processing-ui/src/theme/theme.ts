@@ -4,9 +4,9 @@ export const appTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1d4ed8',
-      dark: '#1e3a8a',
-      light: '#60a5fa'
+      main: '#2563eb',
+      dark: '#1d4ed8',
+      light: '#93c5fd'
     },
     secondary: {
       main: '#0f766e',
@@ -23,14 +23,14 @@ export const appTheme = createTheme({
       main: '#15803d'
     },
     background: {
-      default: '#f4f6fa',
+      default: '#eef2f7',
       paper: '#ffffff'
     },
     text: {
       primary: '#111827',
       secondary: '#4b5563'
     },
-    divider: '#d8dee8'
+    divider: '#d7deea'
   },
   typography: {
     fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -63,14 +63,16 @@ export const appTheme = createTheme({
       styleOverrides: {
         root: {
           minHeight: 38,
-          boxShadow: 'none'
+          boxShadow: 'none',
+          borderRadius: 7
         }
       }
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundImage: 'none'
+          backgroundImage: 'none',
+          borderRadius: 8
         }
       }
     },

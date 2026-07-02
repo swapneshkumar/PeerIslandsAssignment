@@ -3,6 +3,7 @@ import {
   AppBar,
   Box,
   Button,
+  Chip,
   Container,
   Dialog,
   DialogActions,
@@ -36,19 +37,26 @@ import { alpha } from '@mui/material/styles';
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
+  Activity,
   AlertCircle,
   Ban,
+  BarChart3,
   CheckCircle2,
   ClipboardList,
   Clock3,
+  Database,
   Eye,
+  Gauge,
+  Layers3,
+  LockKeyhole,
   PackageCheck,
   Plus,
   RefreshCcw,
+  ServerCog,
   Search,
   Settings,
-  ShieldCheck,
-  Truck
+  Truck,
+  Workflow
 } from 'lucide-react';
 import { createOrdersApi } from './api/ordersApi';
 import { StatusChip } from './components/StatusChip';
@@ -111,7 +119,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>({
     type: 'info',
-    message: 'Connect the API and add a JWT token to begin testing protected order endpoints.'
+    message: 'Dev console connected with an Admin JWT for local Docker testing.'
   });
 
   const api = useMemo(() => createOrdersApi({ baseUrl: apiBaseUrl, token: jwt }), [apiBaseUrl, jwt]);
@@ -211,29 +219,59 @@ export default function App() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <AppBar position="sticky" elevation={0} sx={{ bgcolor: '#111827', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
-        <Toolbar sx={{ gap: 2, minHeight: 68 }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: 2, display: 'grid', placeItems: 'center', bgcolor: '#2563eb' }}>
-            <PackageCheck size={22} />
-          </Box>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', display: 'flex' }}>
+      <Box
+        component="aside"
+        sx={{
+          display: { xs: 'none', md: 'flex' },
+          width: 76,
+          minHeight: '100vh',
+          position: 'sticky',
+          top: 0,
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 1.5,
+          py: 2,
+          bgcolor: '#0f172a',
+          borderRight: '1px solid rgba(255,255,255,0.08)'
+        }}
+      >
+        <Box sx={{ width: 44, height: 44, borderRadius: 2, display: 'grid', placeItems: 'center', bgcolor: '#2563eb', color: 'white' }}>
+          <PackageCheck size={23} />
+        </Box>
+        <NavIcon active icon={<Gauge size={20} />} label="Dashboard" />
+        <NavIcon icon={<ClipboardList size={20} />} label="Orders" />
+        <NavIcon icon={<Workflow size={20} />} label="Workflow" />
+        <NavIcon icon={<Database size={20} />} label="Storage" />
+        <Box sx={{ flex: 1 }} />
+        <NavIcon icon={<Settings size={20} />} label="Settings" onClick={() => setSettingsOpen(true)} />
+      </Box>
+
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <AppBar position="sticky" elevation={0} sx={{ bgcolor: 'rgba(255,255,255,0.92)', color: 'text.primary', backdropFilter: 'blur(14px)', borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Toolbar sx={{ gap: 2, minHeight: 70 }}>
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="h2" sx={{ color: 'white', fontSize: 20 }}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.3 }}>
+              <Chip size="small" label="OrderOps" sx={{ bgcolor: '#dbeafe', color: '#1d4ed8', fontWeight: 900 }} />
+              <Chip size="small" icon={<Activity size={14} />} label="Live API" color="success" variant="outlined" />
+              <Chip size="small" icon={<LockKeyhole size={14} />} label="Admin JWT" color="primary" variant="outlined" />
+            </Stack>
+            <Typography variant="h2" sx={{ fontSize: 20 }}>
               Order Operations Console
             </Typography>
-            <Typography sx={{ color: 'rgba(255,255,255,0.68)', fontSize: 13 }}>
-              Enterprise order testing workspace
+            <Typography sx={{ color: 'text.secondary', fontSize: 13 }}>
+              Enterprise order lifecycle testing, fulfillment controls, and audit visibility
             </Typography>
           </Box>
           <Tooltip title="API settings">
-            <IconButton color="inherit" onClick={() => setSettingsOpen(true)}>
+            <IconButton onClick={() => setSettingsOpen(true)}>
               <Settings size={20} />
             </IconButton>
           </Tooltip>
-          <Button color="inherit" variant="outlined" startIcon={<RefreshCcw size={16} />} onClick={() => loadOrders()} disabled={busy}>
+          <Button variant="outlined" startIcon={<RefreshCcw size={16} />} onClick={() => loadOrders()} disabled={busy}>
             Refresh
           </Button>
-          <Button variant="contained" startIcon={<Plus size={16} />} onClick={() => setCreateOpen(true)}>
+          <Button aria-label="New order" variant="contained" startIcon={<Plus size={16} />} onClick={() => setCreateOpen(true)}>
             New Order
           </Button>
         </Toolbar>
@@ -241,6 +279,40 @@ export default function App() {
       </AppBar>
 
       <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Paper
+          variant="outlined"
+          sx={{
+            mb: 2,
+            overflow: 'hidden',
+            borderColor: 'rgba(37,99,235,0.18)',
+            bgcolor: '#ffffff'
+          }}
+        >
+          <Box
+            sx={{
+              p: { xs: 2, md: 2.5 },
+              display: 'grid',
+              gap: 2,
+              gridTemplateColumns: { xs: '1fr', lg: '1.4fr 1fr' },
+              alignItems: 'center'
+            }}
+          >
+            <Box>
+              <Typography variant="h1" sx={{ fontSize: { xs: 24, md: 30 }, mb: 0.6 }}>
+                Fulfillment Command Center
+              </Typography>
+              <Typography color="text.secondary" sx={{ maxWidth: 760 }}>
+                Track orders from placement to delivery, validate status transitions, and inspect audit history against the live .NET API.
+              </Typography>
+            </Box>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+              <SystemPill icon={<ServerCog size={17} />} label="API" value="localhost:8080" />
+              <SystemPill icon={<Database size={17} />} label="PostgreSQL" value="Healthy" />
+              <SystemPill icon={<Layers3 size={17} />} label="Redis" value="Cache ready" />
+            </Stack>
+          </Box>
+        </Paper>
+
         {notice && (
           <Alert severity={notice.type} icon={notice.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />} sx={{ mb: 2 }}>
             {notice.message}
@@ -248,13 +320,13 @@ export default function App() {
         )}
 
         <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Metric icon={<ClipboardList size={20} />} label="Orders" value={String(metrics.total)} color="#1d4ed8" />
-          <Metric icon={<Clock3 size={20} />} label="Pending on page" value={String(metrics.pending)} color="#b45309" />
-          <Metric icon={<Truck size={20} />} label="Processing on page" value={String(metrics.processing)} color="#0f766e" />
-          <Metric icon={<ShieldCheck size={20} />} label="Page value" value={formatMoney(metrics.revenue, 'USD')} color="#6d28d9" />
+          <Metric icon={<ClipboardList size={20} />} label="Total orders" value={String(metrics.total)} color="#2563eb" caption="Across active filters" />
+          <Metric icon={<Clock3 size={20} />} label="Pending" value={String(metrics.pending)} color="#b45309" caption="Awaiting processing" />
+          <Metric icon={<Truck size={20} />} label="Processing" value={String(metrics.processing)} color="#0f766e" caption="In fulfillment flow" />
+          <Metric icon={<BarChart3 size={20} />} label="Page value" value={formatMoney(metrics.revenue, 'USD')} color="#7c3aed" caption="Visible order value" />
         </Grid>
 
-        <Paper variant="outlined" sx={{ mb: 2, p: 2 }}>
+        <Paper variant="outlined" sx={{ mb: 2, p: 2, borderColor: 'rgba(15,23,42,0.12)' }}>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'stretch', md: 'center' }}>
             <TextField
               label="Customer Id"
@@ -286,7 +358,7 @@ export default function App() {
           </Stack>
         </Paper>
 
-        <TableContainer component={Paper} variant="outlined">
+        <TableContainer component={Paper} variant="outlined" sx={{ borderColor: 'rgba(15,23,42,0.12)', boxShadow: '0 18px 55px rgba(15, 23, 42, 0.08)' }}>
           <Table sx={{ minWidth: 920 }}>
             <TableHead>
               <TableRow>
@@ -313,12 +385,19 @@ export default function App() {
                 </TableRow>
               )}
               {orders.items.map((order) => (
-                <TableRow key={order.id} hover>
+                <TableRow key={order.id} hover sx={{ '&:hover': { bgcolor: 'rgba(37,99,235,0.035)' } }}>
                   <TableCell>
-                    <Typography fontWeight={800}>{order.orderNumber}</Typography>
-                    <Typography color="text.secondary" fontSize={13}>
-                      {order.id}
-                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Box sx={{ width: 32, height: 32, display: 'grid', placeItems: 'center', borderRadius: 1.5, bgcolor: alpha('#2563eb', 0.1), color: '#2563eb' }}>
+                        <PackageCheck size={17} />
+                      </Box>
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography fontWeight={850}>{order.orderNumber}</Typography>
+                        <Typography color="text.secondary" fontSize={12} noWrap>
+                          {order.id}
+                        </Typography>
+                      </Box>
+                    </Stack>
                   </TableCell>
                   <TableCell sx={{ maxWidth: 220 }}>
                     <Typography noWrap>{order.customerId}</Typography>
@@ -331,7 +410,7 @@ export default function App() {
                   <TableCell>{formatDate(order.createdAt)}</TableCell>
                   <TableCell align="right">
                     <Tooltip title="View details">
-                      <IconButton onClick={() => openOrderDetails(order.id)}>
+                      <IconButton aria-label="View details" onClick={() => openOrderDetails(order.id)} sx={{ border: '1px solid', borderColor: 'divider' }}>
                         <Eye size={18} />
                       </IconButton>
                     </Tooltip>
@@ -355,6 +434,7 @@ export default function App() {
           />
         </TableContainer>
       </Container>
+      </Box>
 
       <OrderDrawer
         order={selectedOrder}
@@ -397,12 +477,82 @@ export default function App() {
   );
 }
 
-function Metric({ icon, label, value, color }: { icon: ReactNode; label: string; value: string; color: string }) {
+function NavIcon({ icon, label, active, onClick }: { icon: ReactNode; label: string; active?: boolean; onClick?: () => void }) {
+  return (
+    <Tooltip title={label} placement="right">
+      <IconButton
+        onClick={onClick}
+        sx={{
+          width: 44,
+          height: 44,
+          color: active ? 'white' : 'rgba(255,255,255,0.58)',
+          bgcolor: active ? 'rgba(37,99,235,0.95)' : 'transparent',
+          border: '1px solid',
+          borderColor: active ? 'rgba(147,197,253,0.45)' : 'transparent',
+          '&:hover': {
+            bgcolor: active ? 'rgba(37,99,235,0.95)' : 'rgba(255,255,255,0.08)',
+            color: 'white'
+          }
+        }}
+      >
+        {icon}
+      </IconButton>
+    </Tooltip>
+  );
+}
+
+function SystemPill({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 1.25,
+        flex: 1,
+        minWidth: 0,
+        bgcolor: '#f8fafc',
+        borderColor: 'rgba(37,99,235,0.14)'
+      }}
+    >
+      <Stack direction="row" spacing={1} alignItems="center">
+        <Box sx={{ width: 32, height: 32, borderRadius: 1.5, display: 'grid', placeItems: 'center', color: '#2563eb', bgcolor: 'rgba(37,99,235,0.08)' }}>
+          {icon}
+        </Box>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography fontSize={11} fontWeight={900} color="text.secondary" sx={{ textTransform: 'uppercase' }}>
+            {label}
+          </Typography>
+          <Typography fontSize={13} fontWeight={850} noWrap>
+            {value}
+          </Typography>
+        </Box>
+      </Stack>
+    </Paper>
+  );
+}
+
+function Metric({ icon, label, value, color, caption }: { icon: ReactNode; label: string; value: string; color: string; caption: string }) {
   return (
     <Grid item xs={12} sm={6} lg={3}>
-      <Paper variant="outlined" sx={{ p: 2, height: 112 }}>
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <Box sx={{ width: 38, height: 38, borderRadius: 2, display: 'grid', placeItems: 'center', color, bgcolor: alpha(color, 0.1) }}>
+      <Paper
+        variant="outlined"
+        sx={{
+          p: 2,
+          height: 124,
+          position: 'relative',
+          overflow: 'hidden',
+          borderColor: alpha(color, 0.18),
+          boxShadow: '0 14px 40px rgba(15, 23, 42, 0.06)',
+          '&:before': {
+            content: '""',
+            position: 'absolute',
+            inset: '0 auto 0 0',
+            width: 4,
+            bgcolor: color
+          }
+        }}
+      >
+        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ height: '100%' }}>
+          <Box sx={{ width: 42, height: 42, borderRadius: 2, display: 'grid', placeItems: 'center', color, bgcolor: alpha(color, 0.1) }}>
             {icon}
           </Box>
           <Box sx={{ minWidth: 0 }}>
@@ -411,6 +561,9 @@ function Metric({ icon, label, value, color }: { icon: ReactNode; label: string;
             </Typography>
             <Typography variant="h2" sx={{ mt: 0.5 }}>
               {value}
+            </Typography>
+            <Typography color="text.secondary" fontSize={12} sx={{ mt: 0.2 }}>
+              {caption}
             </Typography>
           </Box>
         </Stack>
@@ -435,7 +588,12 @@ function OrderDrawer({
   onCancel: (order: OrderResponse) => void;
 }) {
   return (
-    <Drawer anchor="right" open={Boolean(order)} onClose={onClose} PaperProps={{ sx: { width: { xs: '100%', sm: 560 } } }}>
+    <Drawer
+      anchor="right"
+      open={Boolean(order)}
+      onClose={onClose}
+      PaperProps={{ sx: { width: { xs: '100%', sm: 560 } }, 'data-testid': 'order-detail-drawer' } as never}
+    >
       {order && (
         <Box sx={{ p: 3 }}>
           <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
@@ -544,7 +702,7 @@ function CreateOrderDialog({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md" PaperProps={{ 'data-testid': 'create-order-dialog' } as never}>
       <DialogTitle>Create Test Order</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ pt: 1 }}>
