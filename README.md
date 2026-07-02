@@ -2,7 +2,7 @@
 
 Production-oriented order processing API built with Clean Architecture, Domain Driven Design, CQRS-style application flows, PostgreSQL, Redis, Hangfire, JWT authorization, and automated tests.
 
-> Note: the solution targets `.NET 9`. The current local machine used during generation had only `.NET SDK 8.0.125`, so final build and test verification must be run after installing a .NET 9 SDK.
+> Note: the solution targets `.NET 9`. The current local machine used during generation had only `.NET SDK 8.0.125`, so final verification was run through the `.NET 9` SDK Docker image.
 
 ## Functional Scope
 
@@ -15,7 +15,7 @@ Supported workflows:
 - Retrieve a single order with items and full status history.
 - Update order status through valid lifecycle transitions.
 - Cancel pending orders.
-- Automatically move stale pending orders to processing through a background job.
+- Automatically move pending orders older than 5 minutes to processing through a Hangfire background job that runs every 5 minutes.
 - Expose service health through `/health`.
 
 Order lifecycle:
@@ -50,7 +50,7 @@ src/
 tests/
   Application.Tests                Domain and validator tests
   Architecture.Tests               Clean Architecture dependency tests
-  Integration.Tests                API/database integration test scaffolding
+  Integration.Tests                PostgreSQL-backed API integration tests with JWT
 
 ui/
   order-processing-ui              React + Material UI operations console for API testing
@@ -697,6 +697,18 @@ Standard API response shape:
 
 Problem responses are returned through global exception middleware using `ProblemDetails`.
 
+## Assignment Requirement Mapping
+
+The implementation maps to the requested order-processing features as follows:
+
+- Create an order with multiple items: `POST /orders`.
+- Retrieve order details by ID: `GET /orders/{id}`.
+- Update order status: `PATCH /orders/{id}/status`.
+- Automatically update pending orders to processing every 5 minutes: Hangfire recurring job `process-pending-orders`, configured with a 5-minute schedule and 5-minute pending threshold.
+- List all orders, optionally filtered by status: `GET /orders?status=Pending`.
+- Cancel an order only while pending: `DELETE /orders/{id}`, enforced in the domain model.
+- Explain AI usage, issues found, and corrections made: see `AI Usage Disclosure`.
+
 ## React Material UI Test Console
 
 A premium React operations console is available at:
@@ -829,7 +841,7 @@ Relevant options:
 ```json
 {
   "OrderProcessing": {
-    "PendingOrderThresholdMinutes": 15,
+    "PendingOrderThresholdMinutes": 5,
     "PendingOrderBatchSize": 100,
     "OrderCacheMinutes": 5
   }
@@ -907,15 +919,14 @@ Current test coverage includes:
 
 - Domain business rules for order creation, totals, cancellation, and status history.
 - FluentValidation rules for create-order commands.
+- Background job behavior for pending-to-processing threshold handling.
 - Architecture dependency tests to protect Clean Architecture boundaries.
-- Integration test scaffolding for API health checks.
+- PostgreSQL-backed API integration tests using Testcontainers and real JWT authorization.
+- Integration coverage for health, create order, retrieve by ID, list/filter, status update, cancellation, and cancellation rejection after processing starts.
 
 Recommended next test additions:
 
-- Full API integration tests using Testcontainers PostgreSQL.
-- JWT-authenticated endpoint tests.
 - Repository tests for pagination/filter/sort behavior.
-- Hangfire job tests for stale pending order processing.
 - Concurrency conflict tests for simultaneous status updates.
 
 ## AI Usage Disclosure
@@ -954,7 +965,7 @@ Corrections made:
 
 Current AI-related caveat:
 
-- AI helped produce the implementation, but the final behavior was validated through Docker build/run, API health checks, order creation, order retrieval, and status-transition requests.
+- AI helped produce the implementation, but final behavior was validated through Docker/.NET 9 test runs covering domain rules, architecture rules, background job behavior, and PostgreSQL-backed API integration flows.
 
 ## Security Considerations
 

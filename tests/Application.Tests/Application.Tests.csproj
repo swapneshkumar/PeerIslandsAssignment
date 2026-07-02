@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\OrderProcessing.Application\OrderProcessing.Application.csproj" />
     <ProjectReference Include="..\..\src\OrderProcessing.Domain\OrderProcessing.Domain.csproj" />
+    <ProjectReference Include="..\..\src\OrderProcessing.Infrastructure\OrderProcessing.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\OrderProcessing.Contracts\OrderProcessing.Contracts.csproj" />
     <ProjectReference Include="..\..\src\OrderProcessing.Shared\OrderProcessing.Shared.csproj" />
   </ItemGroup>
